@@ -1,0 +1,33 @@
+{
+  "name": "AeroLens",
+  "short_name": "AeroLens",
+  "description": "Real-time flight tracking with AI-powered delay predictions",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0ea5e9",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["travel", "utilities"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Search Flights",
+      "url": "/?action=search",
+      "description": "Search for flights by callsign"
+    }
+  ]
+}

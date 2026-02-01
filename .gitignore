@@ -1,0 +1,35 @@
+# .NET
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# IDE
+.idea/
+.vs/
+*.suo
+*.user
+.vscode/
+
+# Environment
+.env
+.env.local
+.env.*.local
+appsettings.*.local.json
+appsettings.Local.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Documentation (kept locally)
+docs/
