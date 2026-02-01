@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & Discussions
+    url: https://github.com/eladser/AeroLens/discussions
+    about: Ask questions and discuss ideas
+  - name: Support the Project
+    url: https://ko-fi.com/eladser
+    about: Support AeroLens development
