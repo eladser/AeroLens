@@ -88,7 +88,7 @@ Travelers today face a fragmented experience:
 | **AI/ML** | Groq / Mistral / Gemini | Multi-provider with automatic fallback |
 | **PWA** | Workbox + Service Worker | Offline support, push notifications, installable |
 | **CI/CD** | GitHub Actions | Automated testing, building, and deployment |
-| **Hosting** | Vercel (FE) + Render (BE) | Generous free tiers |
+| **Hosting** | Vercel (FE) + Northflank (BE) | Free tiers, no cold starts |
 
 **Total Cost: $0/month** (within free tier limits)
 
