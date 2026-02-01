@@ -6,8 +6,9 @@
 [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
 [![React](https://img.shields.io/badge/React-19-61DAFB.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6.svg)](https://www.typescriptlang.org/)
-[![Frontend CI](https://github.com/yourusername/aerolens/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/yourusername/aerolens/actions/workflows/frontend-ci.yml)
-[![Backend CI](https://github.com/yourusername/aerolens/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/yourusername/aerolens/actions/workflows/backend-ci.yml)
+[![Frontend CI](https://github.com/eladser/AeroLens/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/eladser/AeroLens/actions/workflows/frontend-ci.yml)
+[![Backend CI](https://github.com/eladser/AeroLens/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/eladser/AeroLens/actions/workflows/backend-ci.yml)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20Me-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/eladser)
 
 ---
 
@@ -87,7 +88,7 @@ Travelers today face a fragmented experience:
 | **AI/ML** | Groq / Mistral / Gemini | Multi-provider with automatic fallback |
 | **PWA** | Workbox + Service Worker | Offline support, push notifications, installable |
 | **CI/CD** | GitHub Actions | Automated testing, building, and deployment |
-| **Hosting** | Vercel (FE) + Railway (BE) | Generous free tiers |
+| **Hosting** | Vercel (FE) + Render (BE) | Generous free tiers |
 
 **Total Cost: $0/month** (within free tier limits)
 
@@ -158,43 +159,6 @@ Travelers today face a fragmented experience:
 
 ---
 
-## Resume-Ready Impact Statement
-
-> **Built a real-time flight intelligence platform** processing 10K+ live aircraft positions via WebSocket streams, featuring ML-based delay predictions achieving 78% accuracy, interactive WebGL visualizations using Deck.gl, and sub-second updates via SignalR — demonstrating expertise in distributed systems, real-time data processing, and AI integration.
-
-### Quantifiable Metrics to Target
-
-| Metric | Target | How to Measure |
-|--------|--------|----------------|
-| Aircraft tracked | 10,000+ simultaneously | OpenSky API state vectors |
-| Update latency | <500ms end-to-end | SignalR round-trip timing |
-| Prediction accuracy | 75-80% | Compare predictions vs actual delays |
-| Uptime | 99.9% | Monitoring via Railway/Vercel dashboards |
-| Page load | <2s LCP | Lighthouse metrics |
-
----
-
-## Interview Talking Points
-
-This project demonstrates senior-level thinking in several areas:
-
-### System Design
-- "How do you handle 10K aircraft updates per second?" → Fan-out architecture, intelligent batching, client-side interpolation
-- "What happens when an upstream API fails?" → Circuit breaker pattern, graceful degradation, cached fallbacks
-
-### Real-Time Architecture
-- "Why SignalR over raw WebSockets?" → Automatic reconnection, fallback transports, hub abstraction
-- "How do you prevent message flooding?" → Server-side throttling, delta compression, priority queues
-
-### AI/ML Integration
-- "How accurate are your predictions?" → Trained on historical delay data, weather correlation, continuous improvement loop
-- "How do you handle AI latency?" → Async prediction pipeline, pre-computed insights, streaming responses
-
-### Cost Optimization
-- "How do you stay within free tiers?" → Aggressive caching (Redis), request batching, off-peak pre-computation
-
----
-
 ## Project Structure
 
 ```
@@ -204,13 +168,6 @@ aerolens/
 │       ├── frontend-ci.yml  # Frontend lint, build, test
 │       ├── backend-ci.yml   # Backend build, Docker
 │       └── deploy.yml       # Deployment automation
-├── docs/
-│   ├── ARCHITECTURE.md      # Detailed system design
-│   ├── FEATURES.md          # Feature specifications
-│   ├── TECH_STACK.md        # Technology decisions
-│   ├── API_INTEGRATIONS.md  # External API details
-│   ├── ROADMAP.md           # Development phases
-│   └── IMPROVEMENTS.md      # Future improvements
 ├── src/
 │   ├── AeroLens.Api/        # ASP.NET Core backend
 │   │   ├── Services/        # API clients, caching
@@ -242,8 +199,8 @@ aerolens/
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/aerolens.git
-cd aerolens
+git clone https://github.com/eladser/AeroLens.git
+cd AeroLens
 
 # Backend
 cd src/AeroLens.Api
@@ -281,6 +238,14 @@ VITE_MAPBOX_TOKEN=your_token
 ## Contributing
 
 Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
+
+## Support
+
+If you find AeroLens useful, consider supporting its development:
+
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20Me-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/eladser)
 
 ---
 

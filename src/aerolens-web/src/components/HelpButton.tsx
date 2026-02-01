@@ -301,7 +301,7 @@ export function HelpButton() {
                 </div>
               </div>
               <p style={{
-                margin: 0,
+                margin: '0 0 12px',
                 fontSize: 12,
                 color: '#94a3b8',
                 lineHeight: 1.6,
@@ -309,6 +309,31 @@ export function HelpButton() {
                 Track thousands of aircraft worldwide with AI-powered delay predictions,
                 weather integration, and trip management.
               </p>
+              <a
+                href="https://ko-fi.com/eladser"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 12px',
+                  background: '#ff5e5b',
+                  color: '#fff',
+                  textDecoration: 'none',
+                  borderRadius: 8,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  transition: 'all 150ms ease',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = '#ff4542'}
+                onMouseLeave={e => e.currentTarget.style.background = '#ff5e5b'}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                Support on Ko-fi
+              </a>
             </div>
           </div>
           </FocusTrap>
