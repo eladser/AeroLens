@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { getWeather, type WeatherResponse } from '../lib/api'
 import { WeatherSkeleton } from './Skeleton'
 
@@ -7,17 +7,39 @@ interface Props {
   lon: number
 }
 
+// Round coordinates to 2 decimal places (~1.1km precision) to prevent
+// excessive API calls when aircraft positions update frequently
+function roundCoord(coord: number): number {
+  return Math.round(coord * 100) / 100
+}
+
 export function WeatherBadge({ lat, lon }: Props) {
   const [weather, setWeather] = useState<WeatherResponse | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Stabilize coordinates to prevent API spam
+  const stableLat = useMemo(() => roundCoord(lat), [Math.round(lat * 100)])
+  const stableLon = useMemo(() => roundCoord(lon), [Math.round(lon * 100)])
+
+  // Track last fetch time to enforce minimum interval
+  const lastFetchRef = useRef<number>(0)
+  const MIN_FETCH_INTERVAL = 30000 // 30 seconds minimum between fetches
+
   useEffect(() => {
     let cancelled = false
 
+    // Enforce minimum interval between fetches
+    const now = Date.now()
+    const timeSinceLastFetch = now - lastFetchRef.current
+    if (lastFetchRef.current > 0 && timeSinceLastFetch < MIN_FETCH_INTERVAL) {
+      return
+    }
+
     async function fetchWeather() {
+      lastFetchRef.current = Date.now()
       setLoading(true)
       try {
-        const data = await getWeather(lat, lon)
+        const data = await getWeather(stableLat, stableLon)
         if (!cancelled) setWeather(data)
       } catch {
         // Weather is optional, fail silently
@@ -28,7 +50,7 @@ export function WeatherBadge({ lat, lon }: Props) {
 
     fetchWeather()
     return () => { cancelled = true }
-  }, [lat, lon])
+  }, [stableLat, stableLon])
 
   if (loading) {
     return <WeatherSkeleton />

@@ -334,6 +334,16 @@ export function HelpButton() {
                 </svg>
                 Support on Ko-fi
               </a>
+              <div style={{
+                marginTop: 12,
+                paddingTop: 12,
+                borderTop: '1px solid rgba(100, 116, 139, 0.2)',
+                fontSize: 11,
+                color: '#64748b',
+                textAlign: 'center',
+              }}>
+                Developed by Elad Sertshuk
+              </div>
             </div>
           </div>
           </FocusTrap>

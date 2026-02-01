@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { getWeather, getWeatherForecast, isRateLimitError, type WeatherResponse, type ForecastDay } from '../lib/api'
 import { type Airport } from '../data/airports'
 import { analyzeDisruption, findNearbyAirports } from '../utils/disruptionAnalysis'
@@ -7,6 +7,12 @@ interface Props {
   lat: number
   lon: number
   onAirportSuggest?: (airport: Airport) => void
+}
+
+// Round coordinates to 2 decimal places (~1.1km precision) to prevent
+// excessive API calls when aircraft positions update frequently
+function roundCoord(coord: number): number {
+  return Math.round(coord * 100) / 100
 }
 
 const levelStyles = {
@@ -52,10 +58,26 @@ export function DisruptionAssistant({ lat, lon, onAirportSuggest }: Props) {
   const status = useMemo(() => analyzeDisruption(weather, forecast), [weather, forecast])
   const style = levelStyles[status.level]
 
+  // Stabilize coordinates to prevent API spam
+  const stableLat = useMemo(() => roundCoord(lat), [Math.round(lat * 100)])
+  const stableLon = useMemo(() => roundCoord(lon), [Math.round(lon * 100)])
+
+  // Track last fetch time to enforce minimum interval
+  const lastFetchRef = useRef<number>(0)
+  const MIN_FETCH_INTERVAL = 30000 // 30 seconds minimum between fetches
+
   useEffect(() => {
     let cancelled = false
 
+    // Enforce minimum interval between fetches
+    const now = Date.now()
+    const timeSinceLastFetch = now - lastFetchRef.current
+    if (lastFetchRef.current > 0 && timeSinceLastFetch < MIN_FETCH_INTERVAL) {
+      return
+    }
+
     async function fetchData() {
+      lastFetchRef.current = Date.now()
       setLoading(true)
       setRateLimited(false)
 
@@ -64,13 +86,13 @@ export function DisruptionAssistant({ lat, lon, onAirportSuggest }: Props) {
       let hitRateLimit = false
 
       try {
-        weatherData = await getWeather(lat, lon)
+        weatherData = await getWeather(stableLat, stableLon)
       } catch (err) {
         if (isRateLimitError(err)) hitRateLimit = true
       }
 
       try {
-        const forecastData = await getWeatherForecast(lat, lon, 3)
+        const forecastData = await getWeatherForecast(stableLat, stableLon, 3)
         forecastDays = forecastData?.days ?? null
       } catch (err) {
         if (isRateLimitError(err)) hitRateLimit = true
@@ -85,10 +107,10 @@ export function DisruptionAssistant({ lat, lon, onAirportSuggest }: Props) {
     }
 
     fetchData()
-    setNearbyAirports(findNearbyAirports(lat, lon, 300)) // 300km radius
+    setNearbyAirports(findNearbyAirports(stableLat, stableLon, 300)) // 300km radius
 
     return () => { cancelled = true }
-  }, [lat, lon])
+  }, [stableLat, stableLon])
 
   if (loading) {
     return (

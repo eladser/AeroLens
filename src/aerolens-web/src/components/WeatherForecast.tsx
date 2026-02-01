@@ -1,10 +1,16 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { getWeatherForecast, isRateLimitError, type ForecastDay } from '../lib/api'
 
 interface Props {
   lat: number
   lon: number
   compact?: boolean
+}
+
+// Round coordinates to 2 decimal places (~1.1km precision) to prevent
+// excessive API calls when aircraft positions update frequently
+function roundCoord(coord: number): number {
+  return Math.round(coord * 100) / 100
 }
 
 export function WeatherForecast({ lat, lon, compact = false }: Props) {
@@ -15,15 +21,31 @@ export function WeatherForecast({ lat, lon, compact = false }: Props) {
   const [expanded, setExpanded] = useState(false)
   const toggleExpanded = useCallback(() => setExpanded(prev => !prev), [])
 
+  // Stabilize coordinates to prevent API spam
+  const stableLat = useMemo(() => roundCoord(lat), [Math.round(lat * 100)])
+  const stableLon = useMemo(() => roundCoord(lon), [Math.round(lon * 100)])
+
+  // Track last fetch time to enforce minimum interval
+  const lastFetchRef = useRef<number>(0)
+  const MIN_FETCH_INTERVAL = 30000 // 30 seconds minimum between fetches
+
   useEffect(() => {
     let cancelled = false
 
+    // Enforce minimum interval between fetches
+    const now = Date.now()
+    const timeSinceLastFetch = now - lastFetchRef.current
+    if (lastFetchRef.current > 0 && timeSinceLastFetch < MIN_FETCH_INTERVAL) {
+      return
+    }
+
     async function fetchForecast() {
+      lastFetchRef.current = Date.now()
       setLoading(true)
       setError(false)
       setRateLimited(false)
       try {
-        const data = await getWeatherForecast(lat, lon, 5)
+        const data = await getWeatherForecast(stableLat, stableLon, 5)
         if (!cancelled) setForecast(data.days)
       } catch (err) {
         if (!cancelled) {
@@ -40,7 +62,7 @@ export function WeatherForecast({ lat, lon, compact = false }: Props) {
 
     fetchForecast()
     return () => { cancelled = true }
-  }, [lat, lon])
+  }, [stableLat, stableLon])
 
   if (loading) {
     return (
