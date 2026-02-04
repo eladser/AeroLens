@@ -50,58 +50,13 @@ public class AdsbLolClient(HttpClient http, ILogger<AdsbLolClient> log)
 
     public async Task<IReadOnlyList<AircraftState>> GetGlobalAircraftAsync(CancellationToken ct = default)
     {
-        // 20 points at 1000nm radius, placed at busiest flight corridors with ADS-B receiver coverage
-        // Data-driven: OAG busiest routes 2024, adsb.lol receiver density, ~4,470 unique aircraft
-        var regions = new (double lat, double lon, string name)[]
-        {
-            // Europe & surrounds
-            (48, 2, "Europe"),
-            (62, 15, "Scandinavia"),
-            (38, 40, "Turkey-EastMed"),
-            (30, 5, "North-Africa"),
-            // North America
-            (40, -74, "US-East"),
-            (35, -115, "US-West"),
-            (22, -100, "Mexico"),
-            // East Asia
-            (36, 128, "Korea-Japan"),
-            (25, 113, "China-South-HK"),
-            // Middle East & South Asia
-            (25, 55, "Dubai-Gulf"),
-            (20, 78, "India"),
-            // Southeast Asia
-            (14, 101, "Bangkok"),
-            (1, 104, "Singapore"),
-            // Southern hemisphere
-            (-25, -47, "Brazil"),
-            (-28, 150, "Australia-East"),
-            (-27, 28, "South-Africa"),
-            (-32, 118, "Australia-West"),
-            (-37, 175, "New-Zealand"),
-            // Pacific & Americas
-            (8, -75, "Caribbean-Colombia"),
-            (20, -155, "Hawaii"),
-        };
+        // Single query with max radius covers the entire globe (~4,600 aircraft)
+        // The API has no radius cap - 10,800nm = half Earth's circumference = full coverage
+        var result = await GetAircraftInRadiusAsync(0, 0, 11000, ct);
 
-        var tasks = regions.Select(r => GetAircraftInRadiusAsync(r.lat, r.lon, 1000, ct));
-        var results = await Task.WhenAll(tasks);
+        log.LogInformation("adsb.lol global query: {Count} aircraft", result.Count);
 
-        var seen = new HashSet<string>();
-        var combined = new List<AircraftState>();
-
-        foreach (var regionResult in results)
-        {
-            foreach (var aircraft in regionResult)
-            {
-                if (seen.Add(aircraft.Icao24))
-                    combined.Add(aircraft);
-            }
-        }
-
-        log.LogInformation("adsb.lol global query: {Count} unique aircraft from {Regions} regions",
-            combined.Count, regions.Length);
-
-        return combined;
+        return result;
     }
 
     private static AircraftState ParseAircraft(JsonElement ac)
