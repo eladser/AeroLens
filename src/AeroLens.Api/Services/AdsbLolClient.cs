@@ -50,53 +50,40 @@ public class AdsbLolClient(HttpClient http, ILogger<AdsbLolClient> log)
 
     public async Task<IReadOnlyList<AircraftState>> GetGlobalAircraftAsync(CancellationToken ct = default)
     {
+        // 20 points at 1000nm radius, placed at busiest flight corridors with ADS-B receiver coverage
+        // Data-driven: OAG busiest routes 2024, adsb.lol receiver density, ~4,470 unique aircraft
         var regions = new (double lat, double lon, string name)[]
         {
-            // Europe
-            (51.5, -0.1, "Europe-London"),
-            (48.9, 2.4, "Europe-Paris"),
-            (52.5, 13.4, "Europe-Berlin"),
-            (40.4, -3.7, "Europe-Madrid"),
-            (41.9, 12.5, "Europe-Rome"),
-            (59.3, 18.1, "Europe-Stockholm"),
-            (41.0, 29.0, "Europe-Istanbul"),
-            (50.1, 14.3, "Europe-Prague"),
+            // Europe & surrounds
+            (48, 2, "Europe"),
+            (62, 15, "Scandinavia"),
+            (38, 40, "Turkey-EastMed"),
+            (30, 5, "North-Africa"),
             // North America
-            (40.6, -73.8, "US-NewYork"),
-            (33.9, -118.4, "US-LosAngeles"),
-            (41.9, -87.6, "US-Chicago"),
-            (25.8, -80.3, "US-Miami"),
-            (32.9, -97.0, "US-Dallas"),
-            (47.4, -122.3, "US-Seattle"),
-            (43.7, -79.4, "Canada-Toronto"),
-            (51.1, -114.0, "Canada-Calgary"),
-            // Central & South America
-            (19.4, -99.1, "Mexico-MexicoCity"),
-            (4.7, -74.1, "Colombia-Bogota"),
-            (-23.5, -46.6, "Brazil-SaoPaulo"),
-            (-34.6, -58.4, "Argentina-BuenosAires"),
-            // Middle East & Africa
-            (25.3, 55.4, "MiddleEast-Dubai"),
-            (30.0, 31.2, "Africa-Cairo"),
-            (-1.3, 36.8, "Africa-Nairobi"),
-            (-26.1, 28.1, "Africa-Johannesburg"),
-            // South & Central Asia
-            (28.6, 77.1, "Asia-Delhi"),
-            (19.1, 72.9, "Asia-Mumbai"),
-            // East & Southeast Asia
-            (35.7, 139.8, "Asia-Tokyo"),
-            (37.6, 127.0, "Asia-Seoul"),
-            (40.1, 116.6, "Asia-Beijing"),
-            (22.3, 114.2, "Asia-HongKong"),
-            (13.7, 100.5, "Asia-Bangkok"),
-            (1.4, 103.8, "Asia-Singapore"),
-            (-6.1, 106.8, "Asia-Jakarta"),
-            // Oceania
-            (-33.9, 151.2, "Australia-Sydney"),
-            (-36.9, 174.8, "NewZealand-Auckland"),
+            (40, -74, "US-East"),
+            (35, -115, "US-West"),
+            (22, -100, "Mexico"),
+            // East Asia
+            (36, 128, "Korea-Japan"),
+            (25, 113, "China-South-HK"),
+            // Middle East & South Asia
+            (25, 55, "Dubai-Gulf"),
+            (20, 78, "India"),
+            // Southeast Asia
+            (14, 101, "Bangkok"),
+            (1, 104, "Singapore"),
+            // Southern hemisphere
+            (-25, -47, "Brazil"),
+            (-28, 150, "Australia-East"),
+            (-27, 28, "South-Africa"),
+            (-32, 118, "Australia-West"),
+            (-37, 175, "New-Zealand"),
+            // Pacific & Americas
+            (8, -75, "Caribbean-Colombia"),
+            (20, -155, "Hawaii"),
         };
 
-        var tasks = regions.Select(r => GetAircraftInRadiusAsync(r.lat, r.lon, 250, ct));
+        var tasks = regions.Select(r => GetAircraftInRadiusAsync(r.lat, r.lon, 1000, ct));
         var results = await Task.WhenAll(tasks);
 
         var seen = new HashSet<string>();
