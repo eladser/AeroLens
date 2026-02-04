@@ -19,9 +19,9 @@
 <body>
   <div id="map"></div>
   <div class="legend">
-    <div style="font-weight:600; margin-bottom:8px;">adsb.lol Coverage (20 pts @ 1000nm)</div>
-    <div><span style="background:rgba(14,165,233,0.3);border:2px solid #0ea5e9;"></span> 1000nm radius circle</div>
-    <div><span style="background:#ef4444;"></span> Query center point</div>
+    <div style="font-weight:600; margin-bottom:8px;">adsb.lol Coverage (1 query @ 11,000nm)</div>
+    <div><span style="background:rgba(14,165,233,0.3);border:2px solid #0ea5e9;"></span> 11,000nm radius (full globe)</div>
+    <div><span style="background:#ef4444;"></span> Query center point (0,0)</div>
     <div style="margin-top:8px; color:#64748b;" id="info"></div>
   </div>
   <script>
@@ -30,59 +30,27 @@
       attribution: '&copy; CartoDB', maxZoom: 19
     }).addTo(map);
 
-    const regions = [
-      // Europe & surrounds
-      [48, 2, "Europe"],
-      [62, 15, "Scandinavia"],
-      [38, 40, "Turkey-EastMed"],
-      [30, 5, "North-Africa"],
-      // North America
-      [40, -74, "US-East"],
-      [35, -115, "US-West"],
-      [22, -100, "Mexico"],
-      // East Asia
-      [36, 128, "Korea-Japan"],
-      [25, 113, "China-South-HK"],
-      // Middle East & South Asia
-      [25, 55, "Dubai-Gulf"],
-      [20, 78, "India"],
-      // Southeast Asia
-      [14, 101, "Bangkok"],
-      [1, 104, "Singapore"],
-      // Southern hemisphere
-      [-25, -47, "Brazil"],
-      [-28, 150, "Australia-East"],
-      [-27, 28, "South-Africa"],
-      [-32, 118, "Australia-West"],
-      [-37, 175, "New-Zealand"],
-      // Pacific & Americas
-      [8, -75, "Caribbean-Colombia"],
-      [20, -155, "Hawaii"],
-    ];
-
     const NM_TO_METERS = 1852;
-    const radius = 1000 * NM_TO_METERS;
 
-    regions.forEach(([lat, lon, name]) => {
-      L.circle([lat, lon], {
-        radius: radius,
-        color: '#0ea5e9',
-        weight: 1.5,
-        fillColor: '#0ea5e9',
-        fillOpacity: 0.08,
-        dashArray: '4 4',
-      }).addTo(map).bindTooltip(name, { permanent: false, direction: 'top' });
+    // Single query at 11,000nm from (0,0) covers the entire globe
+    L.circle([0, 0], {
+      radius: 11000 * NM_TO_METERS,
+      color: '#0ea5e9',
+      weight: 1.5,
+      fillColor: '#0ea5e9',
+      fillOpacity: 0.06,
+      dashArray: '4 4',
+    }).addTo(map).bindTooltip('Global query (11,000nm)', { permanent: false, direction: 'top' });
 
-      L.circleMarker([lat, lon], {
-        radius: 4,
-        color: '#ef4444',
-        fillColor: '#ef4444',
-        fillOpacity: 1,
-        weight: 0,
-      }).addTo(map);
-    });
+    L.circleMarker([0, 0], {
+      radius: 5,
+      color: '#ef4444',
+      fillColor: '#ef4444',
+      fillOpacity: 1,
+      weight: 0,
+    }).addTo(map);
 
-    document.getElementById('info').textContent = `${regions.length} points, 1000nm each`;
+    document.getElementById('info').textContent = '1 query, 11,000nm radius, ~4,600 aircraft';
   </script>
 </body>
 </html>
