@@ -2,25 +2,42 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace AeroLens.Api.Services;
 
-public class AircraftHub : Hub
+public class AircraftHub(FlightCache cache, ILogger<AircraftHub> logger) : Hub
 {
-    private readonly ILogger<AircraftHub> _logger;
-
-    public AircraftHub(ILogger<AircraftHub> logger)
-    {
-        _logger = logger;
-    }
-
     public override async Task OnConnectedAsync()
     {
-        _logger.LogInformation("Client connected: {ConnectionId}", Context.ConnectionId);
+        logger.LogInformation("Client connected: {ConnectionId}", Context.ConnectionId);
         await Groups.AddToGroupAsync(Context.ConnectionId, "all");
+
+        var (states, lastUpdate) = cache.Get();
+        if (states.Count > 0)
+        {
+            var payload = new
+            {
+                timestamp = lastUpdate,
+                count = states.Count,
+                source = "cache",
+                aircraft = states.Select(a => new
+                {
+                    icao24 = a.Icao24,
+                    callsign = a.CallSign,
+                    lat = a.Latitude,
+                    lon = a.Longitude,
+                    altitude = a.Altitude,
+                    velocity = a.Velocity,
+                    heading = a.Heading,
+                    onGround = a.OnGround
+                })
+            };
+            await Clients.Caller.SendAsync("AircraftUpdate", payload);
+        }
+
         await base.OnConnectedAsync();
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        _logger.LogInformation("Client disconnected: {ConnectionId}", Context.ConnectionId);
+        logger.LogInformation("Client disconnected: {ConnectionId}", Context.ConnectionId);
         await base.OnDisconnectedAsync(exception);
     }
 
@@ -28,13 +45,13 @@ public class AircraftHub : Hub
     {
         if (string.IsNullOrWhiteSpace(icao24))
         {
-            _logger.LogWarning("Invalid icao24 provided for subscription");
+            logger.LogWarning("Invalid icao24 provided for subscription");
             return;
         }
 
         var groupName = $"flight:{icao24.ToUpperInvariant()}";
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-        _logger.LogDebug("Client {ConnectionId} subscribed to flight {Icao24}",
+        logger.LogDebug("Client {ConnectionId} subscribed to flight {Icao24}",
             Context.ConnectionId, icao24);
     }
 
@@ -45,7 +62,7 @@ public class AircraftHub : Hub
 
         var groupName = $"flight:{icao24.ToUpperInvariant()}";
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-        _logger.LogDebug("Client {ConnectionId} unsubscribed from flight {Icao24}",
+        logger.LogDebug("Client {ConnectionId} unsubscribed from flight {Icao24}",
             Context.ConnectionId, icao24);
     }
 
@@ -56,7 +73,7 @@ public class AircraftHub : Hub
         var groupName = $"area:{latCell}:{lonCell}";
 
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-        _logger.LogDebug("Client {ConnectionId} subscribed to area {GroupName}",
+        logger.LogDebug("Client {ConnectionId} subscribed to area {GroupName}",
             Context.ConnectionId, groupName);
     }
 
@@ -67,7 +84,7 @@ public class AircraftHub : Hub
         var groupName = $"area:{latCell}:{lonCell}";
 
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-        _logger.LogDebug("Client {ConnectionId} unsubscribed from area {GroupName}",
+        logger.LogDebug("Client {ConnectionId} unsubscribed from area {GroupName}",
             Context.ConnectionId, groupName);
     }
 }
